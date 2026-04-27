@@ -12,7 +12,7 @@ orderer hostname
 channel definitions
 Docker service naming
 
-1. Purpose in Cooperative Architecture
+## 1. Purpose in Cooperative Architecture
 
 We now formalize:
 
@@ -50,7 +50,7 @@ This file becomes:
 
 architecture contract
 
-2. File Structure
+## 2. File Structure
 
 Already exists:
 
@@ -61,7 +61,7 @@ Only this file for Step 2.
 
 No new folders.
 
-3. Initialize File Content
+## 3. Initialize File Content
 
 Put this into config/network.yaml:
 
@@ -103,7 +103,7 @@ Stop there.
 
 No more files yet.
 
-4. Explain Important Sections
+## 4. Explain Important Sections
    network
    network:
    name: coopnet
@@ -188,7 +188,7 @@ from one source-of-truth.
 
 Very scalable.
 
-5. Relationship to Previous / Next Step
+## 5. Relationship to Previous / Next Step
 
 Previous:
 
