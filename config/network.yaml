@@ -1,0 +1,37 @@
+network:
+  name: coopnet
+  domain: coop.local
+
+consortium:
+  name: CoopConsortium
+
+organizations:
+  orderer:
+    name: OrdererOrg
+    msp_id: OrdererMSP
+    domain: orderer.coop.local
+    orderers:
+      - orderer0
+
+  headquarters:
+    name: HeadquartersOrg
+    msp_id: HQMSP
+    domain: hq.coop.local
+    peers:
+      - peer0
+      - peer1
+
+  branch:
+    name: BranchOrg
+    msp_id: BranchMSP
+    domain: branch.coop.local
+    peers:
+      - peer0
+      - peer1
+
+channels:
+  - name: mainchannel
+    consortium: CoopConsortium
+    organizations:
+      - HQMSP
+      - BranchMSP
