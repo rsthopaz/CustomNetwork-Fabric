@@ -1,0 +1,22 @@
+OrdererOrgs:
+  - Name: OrdererOrg
+    Domain: orderer.coop.local
+    Specs:
+      - Hostname: orderer0
+
+PeerOrgs:
+  - Name: HeadquartersOrg
+    Domain: hq.coop.local
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1
+
+  - Name: BranchOrg
+    Domain: branch.coop.local
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1
