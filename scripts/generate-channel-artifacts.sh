@@ -20,11 +20,11 @@ configtxgen \
   -channelID system-channel \
   -outputBlock "${ARTIFACT_DIR}/genesis.block"
 
-echo "Generating application channel block..."
+echo "Generating channel creation transaction..."
 
 configtxgen \
   -profile CoopChannel \
   -channelID mainchannel \
-  -outputBlock "${ARTIFACT_DIR}/mainchannel.block"
+  -outputCreateChannelTx "${ARTIFACT_DIR}/mainchannel.tx"
 
 echo "Done."
