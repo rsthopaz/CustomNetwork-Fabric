@@ -10,18 +10,21 @@ ARTIFACT_DIR="${ROOT_DIR}/channel-artifacts"
 
 mkdir -p "${ARTIFACT_DIR}"
 
-echo "Generating genesis block..."
+echo "Cleaning old artifacts..."
+rm -f "${ARTIFACT_DIR}"/*
+
+echo "Generating orderer genesis block..."
 
 configtxgen \
   -profile CoopGenesis \
   -channelID system-channel \
   -outputBlock "${ARTIFACT_DIR}/genesis.block"
 
-echo "Generating channel transaction..."
+echo "Generating application channel block..."
 
 configtxgen \
   -profile CoopChannel \
   -channelID mainchannel \
-  -outputCreateChannelTx "${ARTIFACT_DIR}/mainchannel.tx"
+  -outputBlock "${ARTIFACT_DIR}/mainchannel.block"
 
 echo "Done."
