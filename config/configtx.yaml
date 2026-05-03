@@ -1,0 +1,169 @@
+Organizations:
+
+  - &OrdererOrg
+    Name: OrdererMSP
+    ID: OrdererMSP
+    MSPDir: ../organizations/ordererOrganizations/orderer.coop.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+
+  - &HQ
+    Name: HQMSP
+    ID: HQMSP
+    MSPDir: ../organizations/peerOrganizations/hq.coop.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('HQMSP.admin', 'HQMSP.peer', 'HQMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('HQMSP.admin', 'HQMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('HQMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('HQMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.hq.coop.local
+        Port: 7051
+
+  - &Branch
+    Name: BranchMSP
+    ID: BranchMSP
+    MSPDir: ../organizations/peerOrganizations/branch.coop.local/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('BranchMSP.admin', 'BranchMSP.peer', 'BranchMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('BranchMSP.admin', 'BranchMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('BranchMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('BranchMSP.peer')"
+    AnchorPeers:
+      - Host: peer0.branch.coop.local
+        Port: 9051
+
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+
+  Orderer: &OrdererCapabilities
+    V2_0: true
+
+  Application: &ApplicationCapabilities
+    V2_5: true
+
+
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer0.orderer.coop.local:7050
+
+  EtcdRaft:
+    Consenters:
+      - Host: orderer0.orderer.coop.local
+        Port: 7050
+        ClientTLSCert: ../organizations/ordererOrganizations/orderer.coop.local/orderers/orderer0.orderer.coop.local/tls/server.crt
+        ServerTLSCert: ../organizations/ordererOrganizations/orderer.coop.local/orderers/orderer0.orderer.coop.local/tls/server.crt
+
+  BatchTimeout: 2s
+
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+
+  Organizations:
+
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+  Capabilities:
+    <<: *OrdererCapabilities
+
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+
+Profiles:
+
+  CoopGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *OrdererOrg
+    Consortiums:
+      CoopConsortium:
+        Organizations:
+          - *HQ
+          - *Branch
+
+  CoopChannel:
+    Consortium: CoopConsortium
+    <<: *ChannelDefaults
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *HQ
+        - *Branch

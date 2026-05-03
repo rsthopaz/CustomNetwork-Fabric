@@ -1,3 +1,4 @@
 *.md
 *.env
-!README.mdfabric-samples/
+!README.md
+fabric-samples/
