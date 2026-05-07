@@ -1,3 +1,48 @@
 version: '3.8'
 
 services:
+
+  orderer0.orderer.coop.local:
+    container_name: orderer0.orderer.coop.local
+    image: hyperledger/fabric-orderer:2.5
+
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+
+      - ORDERER_GENERAL_BOOTSTRAPMETHOD=file
+      - ORDERER_GENERAL_BOOTSTRAPFILE=/var/hyperledger/orderer/genesis.block
+
+    working_dir: /root
+
+    command: orderer
+
+    ports:
+      - "7050:7050"
+
+    volumes:
+      - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/genesis.block
+
+      - ../organizations/ordererOrganizations/orderer.coop.local/orderers/orderer0.orderer.coop.local/msp:/var/hyperledger/orderer/msp
+
+      - ../organizations/ordererOrganizations/orderer.coop.local/orderers/orderer0.orderer.coop.local/tls:/var/hyperledger/orderer/tls
+
+      - ../volumes/orderer0:/var/hyperledger/production/orderer
+
+    networks:
+      - coopnet
+
+
+networks:
+  coopnet:
+    name: coopnet
