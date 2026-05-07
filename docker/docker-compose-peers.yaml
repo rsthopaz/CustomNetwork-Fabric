@@ -1,3 +1,206 @@
 version: '3.8'
 
 services:
+
+  peer0.hq.coop.local:
+    container_name: peer0.hq.coop.local
+    image: hyperledger/fabric-peer:2.5
+
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+
+      - CORE_PEER_ID=peer0.hq.coop.local
+      - CORE_PEER_ADDRESS=peer0.hq.coop.local:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+
+      - CORE_PEER_CHAINCODEADDRESS=peer0.hq.coop.local:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.hq.coop.local:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.hq.coop.local:7051
+
+      - CORE_PEER_LOCALMSPID=HQMSP
+
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+
+    volumes:
+      - ../organizations/peerOrganizations/hq.coop.local/peers/peer0.hq.coop.local/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/peerOrganizations/hq.coop.local/peers/peer0.hq.coop.local/tls:/etc/hyperledger/fabric/tls
+      - ../volumes/peer0.hq:/var/hyperledger/production
+
+    working_dir: /root
+    command: peer node start
+
+    ports:
+      - "7051:7051"
+
+    depends_on:
+      - couchdb0
+
+    networks:
+      - coopnet
+
+
+
+  peer1.hq.coop.local:
+    container_name: peer1.hq.coop.local
+    image: hyperledger/fabric-peer:2.5
+
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+
+      - CORE_PEER_ID=peer1.hq.coop.local
+      - CORE_PEER_ADDRESS=peer1.hq.coop.local:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+
+      - CORE_PEER_CHAINCODEADDRESS=peer1.hq.coop.local:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.hq.coop.local:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.hq.coop.local:8051
+
+      - CORE_PEER_LOCALMSPID=HQMSP
+
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+
+    volumes:
+      - ../organizations/peerOrganizations/hq.coop.local/peers/peer1.hq.coop.local/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/peerOrganizations/hq.coop.local/peers/peer1.hq.coop.local/tls:/etc/hyperledger/fabric/tls
+      - ../volumes/peer1.hq:/var/hyperledger/production
+
+    working_dir: /root
+    command: peer node start
+
+    ports:
+      - "8051:8051"
+
+    depends_on:
+      - couchdb1
+
+    networks:
+      - coopnet
+
+
+
+  peer0.branch.coop.local:
+    container_name: peer0.branch.coop.local
+    image: hyperledger/fabric-peer:2.5
+
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+
+      - CORE_PEER_ID=peer0.branch.coop.local
+      - CORE_PEER_ADDRESS=peer0.branch.coop.local:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+
+      - CORE_PEER_CHAINCODEADDRESS=peer0.branch.coop.local:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.branch.coop.local:10051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.branch.coop.local:9051
+
+      - CORE_PEER_LOCALMSPID=BranchMSP
+
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+
+    volumes:
+      - ../organizations/peerOrganizations/branch.coop.local/peers/peer0.branch.coop.local/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/peerOrganizations/branch.coop.local/peers/peer0.branch.coop.local/tls:/etc/hyperledger/fabric/tls
+      - ../volumes/peer0.branch:/var/hyperledger/production
+
+    working_dir: /root
+    command: peer node start
+
+    ports:
+      - "9051:9051"
+
+    depends_on:
+      - couchdb2
+
+    networks:
+      - coopnet
+
+
+
+  peer1.branch.coop.local:
+    container_name: peer1.branch.coop.local
+    image: hyperledger/fabric-peer:2.5
+
+    environment:
+      - FABRIC_LOGGING_SPEC=INFO
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+
+      - CORE_PEER_ID=peer1.branch.coop.local
+      - CORE_PEER_ADDRESS=peer1.branch.coop.local:10051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
+
+      - CORE_PEER_CHAINCODEADDRESS=peer1.branch.coop.local:10052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.branch.coop.local:9051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.branch.coop.local:10051
+
+      - CORE_PEER_LOCALMSPID=BranchMSP
+
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb3:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+
+    volumes:
+      - ../organizations/peerOrganizations/branch.coop.local/peers/peer1.branch.coop.local/msp:/etc/hyperledger/fabric/msp
+      - ../organizations/peerOrganizations/branch.coop.local/peers/peer1.branch.coop.local/tls:/etc/hyperledger/fabric/tls
+      - ../volumes/peer1.branch:/var/hyperledger/production
+
+    working_dir: /root
+    command: peer node start
+
+    ports:
+      - "10051:10051"
+
+    depends_on:
+      - couchdb3
+
+    networks:
+      - coopnet
+
+
+networks:
+  coopnet:
+    name: coopnet
