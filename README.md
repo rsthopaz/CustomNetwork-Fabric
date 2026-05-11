@@ -1,21 +1,20 @@
-# 0. First: Translate Cooperative Business Into Fabric Topology
+# Hyperledger Fabric Cooperative Network Architecture
 
-Your cooperative is not "one company with blockchain."
+## Overview
 
-It's more like:
+This project defines a production-oriented Hyperledger Fabric topology for a cooperative organization network.
 
-Consortium blockchain:
+The architecture models the cooperative as a consortium blockchain rather than a single organization using blockchain internally.
 
-Organization A → Headquarters Cooperative
-Organization B → Branch Cooperative 1
-Organization C → Branch Cooperative 2 (future expansion)
-Auditor Org (optional later)
-Regulator Org (optional read-only later)
+---
 
-This maps naturally into Fabric's organization model.
+# 0. Cooperative Topology → Fabric Consortium Model
 
-Recommended initial architecture:
+The cooperative structure maps naturally into Hyperledger Fabric organizations.
 
+## Consortium: `CoopNet`
+
+```text
 Consortium: CoopNet
 
 Members:
@@ -29,43 +28,46 @@ Members:
 │
 └── Ordering Service
     └── orderer0
+```
 
-Later:
+## Future Expansion
 
+```text
 + orderer1
 + orderer2
 + AuditorOrg
 + BranchOrg2
 + BranchOrg3
+```
 
-Scale horizontally.
+The architecture is designed for horizontal scaling.
 
-# 1) Components You Need To Create
+---
 
-Fabric network = several layers.
+# 1. Core Components
 
-A. PKI / Identity Layer
+Fabric networks consist of multiple infrastructure layers.
 
-This is trust.
+---
 
-Without this, Fabric doesn't run.
+## A. PKI / Identity Layer
 
-Components:
+The identity layer provides trust and authentication.
 
-Root CA
+Without PKI, Fabric cannot operate.
 
-Issues certificates.
+### Components
 
-Certificates identify:
+* Root CA
+* Organization certificates
+* Peer certificates
+* Orderer certificates
+* Client certificates
+* User certificates
 
-admins
-peers
-orderers
-clients
-users
+### Example Certificates
 
-Example:
-
+```text
 HQ Admin cert
 HQ peer0 cert
 HQ peer1 cert
@@ -75,379 +77,445 @@ Branch peer0 cert
 Branch peer1 cert
 
 Orderer cert
+```
 
-With Cryptogen:
+---
 
-generated statically
-easy
-dev friendly
-not production ideal
+### Cryptogen (Development)
 
-With Fabric CA:
+Advantages:
 
-dynamic enrollment
-revoke certs
-rotate certs
-register users
-production approach
-MSP (Membership Service Provider)
+* Static certificate generation
+* Easy setup
+* Development friendly
 
-Identity bundle.
+Limitations:
 
-Contains:
+* Not ideal for production
 
+---
+
+### Fabric CA (Production)
+
+Advantages:
+
+* Dynamic enrollment
+* Certificate revocation
+* Certificate rotation
+* User registration
+* Full identity lifecycle management
+
+Recommended for production deployments.
+
+---
+
+## MSP (Membership Service Provider)
+
+The MSP defines organizational identity boundaries.
+
+Example MSPs:
+
+```text
+HQMSP
+BranchMSP
+OrdererMSP
+```
+
+Typical MSP structure:
+
+```text
 cacerts/
 admincerts/
 keystore/
 signcerts/
 config.yaml
+```
 
-MSP defines:
+MSPs answer the question:
 
-"Who belongs to organization X?"
+> "Who belongs to organization X?"
 
-Every org has MSP.
+---
 
-Example:
+## B. Network Nodes
 
-HQMSP
-BranchMSP
-OrdererMSP
-B. Network Nodes
-Peer
+### Peer Nodes
 
-Stores ledger + executes chaincode.
+Peers:
 
-Functions:
+* Store ledgers
+* Execute chaincode
+* Endorse transactions
+* Validate blocks
+* Commit blocks
+* Participate in gossip
 
-endorse transactions
-validate blocks
-commit blocks
-gossip
+### Minimum Topology
 
-Minimum:
+```text
+2 organizations × 1 peer = 2 peers
+```
 
-2 org × 1 peer = 2 peers
+### Recommended Topology
 
-Recommended:
+```text
+2 organizations × 2 peers = 4 peers
+```
 
-2 org × 2 peers = 4 peers
+Benefits:
 
-Why?
+* High availability
+* Gossip redundancy
+* Internal resilience
+* Better scalability
 
-For:
+### Example Hostnames
 
-HA
-gossip redundancy
-future scaling
-org internal resilience
-
-Example:
-
+```text
 peer0.hq.coop
 peer1.hq.coop
 
 peer0.branch.coop
 peer1.branch.coop
-CouchDB
+```
 
-Optional but strongly recommended.
+---
 
-Alternative:
+## CouchDB
 
-LevelDB (embedded)
+### Recommended Database
 
-Use CouchDB because:
+Fabric supports:
 
-JSON query support
-rich query
-Mango selector
-reporting easier
+* LevelDB (embedded)
+* CouchDB
 
-For cooperative:
+Use CouchDB for cooperative workloads because it supports:
 
-memberships / loans / savings / approvals → JSON objects
+* JSON documents
+* Rich queries
+* Mango selectors
+* Easier reporting
 
-CouchDB ideal.
+Ideal for:
 
-Each peer usually gets:
+* Memberships
+* Loans
+* Savings
+* Governance approvals
 
-1 peer : 1 couchdb
+### Recommended Mapping
+
+```text
+1 peer : 1 CouchDB
+```
 
 Example:
 
+```text
 peer0 + couch0
 peer1 + couch1
-Orderer
+```
 
-Creates blocks.
+---
 
-Does NOT execute smart contracts.
+## Orderer Nodes
 
-Role:
+Orderers:
 
-collect tx
-→ order
-→ package block
-→ distribute block
+* Collect transactions
+* Order transactions
+* Package blocks
+* Distribute blocks
 
-Consensus:
+Orderers do **not** execute chaincode.
 
-Raft.
+### Consensus
 
-Start:
+Use:
 
-1 node:
+```text
+Raft
+```
 
+### Initial Deployment
+
+```text
 orderer0
+```
 
-Production:
+### Production Deployment
 
-3 nodes:
-
+```text
 orderer0
 orderer1
 orderer2
+```
 
-Why 3?
+### Why 3 Orderers?
 
-Raft majority:
+Raft requires majority quorum:
 
-2/3 quorum.
+```text
+2 / 3 quorum
+```
 
-1 failure tolerated.
+This tolerates one node failure.
 
-C. Channel Layer
+---
 
-Logical private ledger.
+# 2. Channel Layer
 
-Think:
+Channels are logical private ledgers.
 
-sub-network.
+Think of them as isolated sub-networks.
 
-Possible cooperative design:
+---
 
-Option A (simple)
+## Option A — Simple
 
-One channel:
+Single channel:
 
+```text
 coopchannel
+```
 
-Everything there.
+Recommended for the initial build.
 
-Easy.
+Advantages:
 
-Recommended first build.
+* Easier operations
+* Simpler deployment
+* Faster development
 
-Option B (better)
+---
 
-Separate channels:
+## Option B — Segmented
 
+Multiple channels:
+
+```text
 governance-channel
 finance-channel
 audit-channel
+```
 
-Pros:
+Advantages:
 
-privacy segmentation.
+* Better privacy separation
 
-Cons:
+Disadvantages:
 
-more ops complexity.
+* Increased operational complexity
 
-My recommendation:
+---
 
-Start:
+## Recommended Approach
 
-1 channel
+### Start With
 
-Later:
+```text
+mainchannel
+```
 
-2 channels
+### Expand Later
 
+```text
 mainchannel
 auditchannel
-D. Chaincode Lifecycle Layer
+```
 
-Need infra for:
+---
 
-package
-install
-approve
-commit
+# 3. Chaincode Lifecycle Layer
 
-Chaincode examples:
+The network must support chaincode lifecycle operations:
 
-member contract
-loan contract
-saving contract
-voting contract
+* Package
+* Install
+* Approve
+* Commit
 
-Not your focus yet—but network must support lifecycle.
+---
 
-E. Ops Layer
+## Example Chaincodes
 
-Monitoring:
+* Member contract
+* Loan contract
+* Savings contract
+* Voting contract
 
-logs
-metrics
-backup
-certificate renewal
+---
 
-Later:
+# 4. Operations Layer
 
-Prometheus
-Grafana
+Operational infrastructure should include:
 
-# 2) Work Order (Step-by-Step Planning)
+* Logging
+* Metrics
+* Backups
+* Certificate renewal
 
-Not commands—architecture order.
+Future additions:
 
-Phase 1 — Define Consortium
+* Prometheus
+* Grafana
+
+---
+
+# 5. Deployment Plan
+
+---
+
+## Phase 1 — Define Consortium
 
 Decide:
 
-Org names
-domains
-MSP names
-peer counts
-channel count
-orderer count
+* Organization names
+* Domains
+* MSP names
+* Peer counts
+* Channel counts
+* Orderer counts
 
 Example:
 
-HQOrg → HQMSP
-BranchOrg → BranchMSP
-OrdererOrg → OrdererMSP
-Phase 2 — PKI Design
+```text
+HQOrg       → HQMSP
+BranchOrg   → BranchMSP
+OrdererOrg  → OrdererMSP
+```
 
-Create:
+---
 
-CA hierarchy.
+## Phase 2 — PKI Design
 
-With Cryptogen:
+Generate:
 
-generate:
+* Organization certificates
+* Peer certificates
+* Admin certificates
+* TLS certificates
 
-org certs
-peer certs
-admin certs
-tls certs
+Equivalent directory:
 
-Output:
-
-crypto-config equivalent.
-
-Equivalent in sample network:
-
+```text
 organizations/
+```
 
-inside fabric-samples.
+---
 
-Phase 3 — Genesis Block
+## Phase 3 — Genesis Block
 
-Build consortium definition.
+Create the consortium definition.
 
 Defines:
 
-orderer
-consortium members
-policies
+* Orderers
+* Consortium members
+* Policies
 
-Equivalent test-network:
+Equivalent file:
 
+```text
 configtx/configtx.yaml
+```
 
-You will create your own.
+---
 
-Phase 4 — Docker Topology
+## Phase 4 — Docker Topology
 
-Create:
+Create Docker containers for:
 
-containers:
+* Peers
+* Orderers
+* CouchDB
+* CLI tools (optional)
 
-peer
-orderer
-couchdb
-cli(optional)
+Example compose file:
 
-Equivalent test-network:
-
-docker/docker-compose-test-net.yaml
-
-You create:
-
+```text
 docker-compose-network.yaml
+```
 
-custom.
+---
 
-Phase 5 — Start Ordering Service
+## Phase 5 — Start Ordering Service
+
+Bring up orderers first.
+
+Validate:
+
+* TLS configuration
+* MSP configuration
+
+---
+
+## Phase 6 — Start Peers
 
 Bring up:
 
-orderer first.
+* HQ peers
+* Branch peers
 
-Check:
+Then:
 
-TLS + MSP valid.
+* Join gossip network
+* Join consortium
 
-Phase 6 — Start Peers
+---
 
-Bring:
-
-HQ peers.
-
-Bring:
-
-Branch peers.
-
-Join gossip.
-
-Join network.
-
-Phase 7 — Create Channel
+## Phase 7 — Create Channel
 
 Create:
 
-mainchannel.
+```text
+mainchannel
+```
 
-Peers join.
+Then:
 
-Anchor peers set.
+* Join peers
+* Configure anchor peers
 
-Equivalent sample:
+---
 
-createChannel.sh.
+## Phase 8 — Validate Lifecycle
 
-You'll automate yourself.
+Deploy a simple test chaincode.
 
-Phase 8 — Lifecycle Validation
+Example:
 
-Deploy dummy chaincode:
-
-ping contract.
+```text
+ping-contract
+```
 
 Verify:
 
-endorsement → commit.
+```text
+endorsement → commit
+```
 
-Phase 9 — Monitoring / Backup
+---
 
-Snapshots.
+## Phase 9 — Monitoring & Backup
 
-Volumes.
+Implement:
 
-Recovery.
+* Snapshots
+* Persistent volumes
+* Recovery procedures
 
-# 3) Recommended Folder Structure
+---
 
-Recommended:
+# 6. Recommended Project Structure
 
+```text
 coop-fabric-network/
 │
 ├── crypto/
 │   ├── cryptogen/
-│   └── fabric-ca/            (future)
+│   └── fabric-ca/
 │
 ├── config/
 │   ├── crypto-config.yaml
@@ -467,7 +535,7 @@ coop-fabric-network/
 │   ├── compose-orderer.yaml
 │   ├── compose-peers.yaml
 │   ├── compose-couchdb.yaml
-│   └── compose-ca.yaml        (future)
+│   └── compose-ca.yaml
 │
 ├── scripts/
 │   ├── generate-crypto.sh
@@ -483,170 +551,244 @@ coop-fabric-network/
 ├── volumes/
 │
 └── README.md
+```
 
-This is production-like.
+---
 
-# 4) Key Design Decisions + Rationale
-Peers
+# 7. Design Recommendations
 
-Minimum:
+## Peers
 
-2 total.
+### Minimum
 
-Recommended:
+```text
+2 total peers
+```
 
-4 total.
+### Recommended
 
-Reason:
-
-HA.
-
-Orderers
-
-Minimum:
-
-Ideal:
+```text
+4 total peers
+```
 
 Reason:
 
-Raft quorum.
+* High availability
+* Resilience
 
-Channels
+---
 
-Minimum:
+## Orderers
 
-Ideal:
+### Minimum
 
-2–3.
+```text
+1 orderer
+```
+
+### Recommended
+
+```text
+3 orderers
+```
 
 Reason:
 
-privacy segmentation.
+* Raft quorum
+* Fault tolerance
 
-Database
+---
+
+## Channels
+
+### Minimum
+
+```text
+1 channel
+```
+
+### Recommended
+
+```text
+2–3 channels
+```
+
+Reason:
+
+* Privacy segmentation
+
+---
+
+## Database
 
 Use:
 
+```text
 CouchDB
+```
 
 Reason:
 
-cooperative data = document-heavy.
+* Cooperative workloads are document-heavy
 
-Certificate Authority
+---
 
-Start:
+## Certificate Authority
 
-Cryptogen.
+### Start With
 
-Later:
+```text
+Cryptogen
+```
 
+### Upgrade To
+
+```text
 Hyperledger Fabric CA
+```
 
 Reason:
 
-identity lifecycle.
+* Full identity lifecycle management
 
-# 5) Simple vs Ideal
-Simple MVP
-2 org
+---
+
+# 8. Deployment Profiles
+
+## Simple MVP
+
+```text
+2 orgs
 1 peer each
 1 orderer
 1 channel
 Cryptogen
 Docker Compose
+```
 
-Very manageable.
+---
 
-Better Dev
-2 org
+## Recommended Development Setup
+
+```text
+2 orgs
 2 peers each
 1 orderer
 1 channel
 CouchDB
 Cryptogen
+```
 
-Best starting point.
+---
 
-Production-ish
-2+ org
-2 peers/org
+## Production-Oriented Setup
+
+```text
+2+ orgs
+2 peers per org
 3 orderers
 2 channels
 Fabric CA
-monitoring
-backup
+Monitoring
+Backups
 Kubernetes
+```
 
-Ideal target.
+---
 
-# 6) Common Mistakes
-1. MSP naming inconsistency
+# 9. Common Mistakes
+
+---
+
+## 1. MSP Naming Inconsistency
 
 Example:
 
+```text
 HQMSP
+```
 
-vs config says:
+vs
 
+```text
 HeadquarterMSP
+```
 
-Breaks signatures.
+This breaks signatures and validation.
 
-Very common.
+---
 
-2. TLS cert wrong hostname
+## 2. TLS Hostname Mismatch
 
-Fabric is strict.
+Fabric strictly validates:
 
-CN/SAN mismatch → fail.
+* CN
+* SAN
 
-3. Wrong volume mounts
+Incorrect hostnames will fail connections.
 
-Ledger disappears on restart.
+---
 
-Need persistent volumes.
+## 3. Incorrect Volume Mounts
 
-4. One peer only
+Without persistent volumes:
 
-Single point failure.
+* Ledger data disappears after restart
 
-5. No anchor peer config
+---
 
-Cross-org gossip fails.
+## 4. Single Peer Deployment
 
-6. Overcomplicated channels early
+A single peer creates a single point of failure.
 
-Start one channel.
+---
 
-7. Using test-network as base code
+## 5. Missing Anchor Peer Configuration
 
-Bad habit.
+Without anchor peers:
 
-Use as:
+* Cross-organization gossip fails
 
-reference only.
+---
 
-Learn from:
+## 6. Overcomplicated Channel Design
 
-network.sh
-compose files
-configtx
-organizations/
-scripts/
+Start simple.
 
-Then rewrite cleanly.
+Recommended:
 
-Mapping to fabric-samples test-network
+```text
+1 channel initially
+```
 
-Reference mapping:
+---
 
+## 7. Using `test-network` as Production Base
+
+Do not copy `fabric-samples/test-network` directly into production.
+
+Use it only as a reference for:
+
+* `network.sh`
+* Compose files
+* `configtx`
+* Organizations
+* Scripts
+
+Rewrite cleanly for your own deployment.
+
+---
+
+# 10. Mapping to `fabric-samples/test-network`
+
+```text
 fabric-samples/test-network
 │
-├── organizations/        -> your organizations/
-├── compose/              -> your docker/
-├── scripts/              -> your scripts/
-├── configtx/             -> your config/
-└── channel-artifacts/    -> your channel-artifacts/
+├── organizations/      → your organizations/
+├── compose/            → your docker/
+├── scripts/            → your scripts/
+├── configtx/           → your config/
+└── channel-artifacts/  → your channel-artifacts/
+```
 
-Keep concept.
+Keep the concepts, not the implementation.
