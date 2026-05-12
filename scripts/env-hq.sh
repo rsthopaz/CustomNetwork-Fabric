@@ -2,6 +2,8 @@
 
 export PATH=${PWD}/fabric-samples/bin:$PATH
 
+export FABRIC_CFG_PATH=${PWD}/fabric-samples/config
+
 export CORE_PEER_TLS_ENABLED=true
 
 export CORE_PEER_LOCALMSPID=HQMSP
