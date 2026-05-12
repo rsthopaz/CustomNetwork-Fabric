@@ -3,7 +3,7 @@
 set -e
 
 export PATH=${PWD}/fabric-samples/bin:$PATH
-export FABRIC_CFG_PATH=${PWD}/config
+export FABRIC_CFG_PATH=${PWD}/fabric-samples/config
 
 CHANNEL_NAME=mainchannel
 
