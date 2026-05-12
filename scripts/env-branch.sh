@@ -10,4 +10,4 @@ export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/branch
 
 export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/branch.coop.local/users/Admin@branch.coop.local/msp
 
-export CORE_PEER_ADDRESS=localhost:9051
+export CORE_PEER_ADDRESS=peer0.branch.coop.local:9051
