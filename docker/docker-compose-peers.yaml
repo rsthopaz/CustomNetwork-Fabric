@@ -37,7 +37,8 @@ services:
       - ../organizations/peerOrganizations/hq.coop.local/peers/peer0.hq.coop.local/msp:/etc/hyperledger/fabric/msp
       - ../organizations/peerOrganizations/hq.coop.local/peers/peer0.hq.coop.local/tls:/etc/hyperledger/fabric/tls
       - ../volumes/peer0.hq:/var/hyperledger/production
-
+      - /var/run/docker.sock:/var/run/docker.sock
+      
     working_dir: /root
     command: peer node start
 
@@ -87,6 +88,7 @@ services:
       - ../organizations/peerOrganizations/hq.coop.local/peers/peer1.hq.coop.local/msp:/etc/hyperledger/fabric/msp
       - ../organizations/peerOrganizations/hq.coop.local/peers/peer1.hq.coop.local/tls:/etc/hyperledger/fabric/tls
       - ../volumes/peer1.hq:/var/hyperledger/production
+      - /var/run/docker.sock:/var/run/docker.sock
 
     working_dir: /root
     command: peer node start
@@ -137,6 +139,7 @@ services:
       - ../organizations/peerOrganizations/branch.coop.local/peers/peer0.branch.coop.local/msp:/etc/hyperledger/fabric/msp
       - ../organizations/peerOrganizations/branch.coop.local/peers/peer0.branch.coop.local/tls:/etc/hyperledger/fabric/tls
       - ../volumes/peer0.branch:/var/hyperledger/production
+      - /var/run/docker.sock:/var/run/docker.sock
 
     working_dir: /root
     command: peer node start
@@ -187,7 +190,8 @@ services:
       - ../organizations/peerOrganizations/branch.coop.local/peers/peer1.branch.coop.local/msp:/etc/hyperledger/fabric/msp
       - ../organizations/peerOrganizations/branch.coop.local/peers/peer1.branch.coop.local/tls:/etc/hyperledger/fabric/tls
       - ../volumes/peer1.branch:/var/hyperledger/production
-
+      - /var/run/docker.sock:/var/run/docker.sock
+      
     working_dir: /root
     command: peer node start
 
