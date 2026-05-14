@@ -1,33 +1,6 @@
-=============== May 7, 2026 (UTC) ===============
-06:55:54.224605 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-06:55:54.266173 db@open opening
-06:55:54.282607 version@stat F·[] S·0B[] Sc·[]
-06:55:54.289039 db@janitor F·2 G·0
-06:55:54.289515 db@open done T·22.9039ms
-=============== May 11, 2026 (UTC) ===============
-12:39:06.596265 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-12:39:06.621287 version@stat F·[] S·0B[] Sc·[]
-12:39:06.622094 db@open opening
-12:39:06.626035 journal@recovery F·1
-12:39:06.626806 journal@recovery recovering @1
-12:39:06.632003 version@stat F·[] S·0B[] Sc·[]
-12:39:06.660646 db@janitor F·2 G·0
-12:39:06.660999 db@open done T·38.517414ms
-=============== May 11, 2026 (UTC) ===============
-12:40:09.926024 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-12:40:09.936303 version@stat F·[] S·0B[] Sc·[]
-12:40:09.937448 db@open opening
-12:40:09.940043 journal@recovery F·1
-12:40:09.940676 journal@recovery recovering @2
-12:40:09.945514 version@stat F·[] S·0B[] Sc·[]
-12:40:09.973951 db@janitor F·2 G·0
-12:40:09.974235 db@open done T·36.387502ms
-=============== May 12, 2026 (UTC) ===============
-02:23:16.450786 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-02:23:16.464271 version@stat F·[] S·0B[] Sc·[]
-02:23:16.465307 db@open opening
-02:23:16.467839 journal@recovery F·1
-02:23:16.468643 journal@recovery recovering @4
-02:23:16.477305 version@stat F·[] S·0B[] Sc·[]
-02:23:16.509159 db@janitor F·2 G·0
-02:23:16.509534 db@open done T·43.865465ms
+=============== May 14, 2026 (UTC) ===============
+15:16:47.335023 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:16:47.357333 db@open opening
+15:16:47.363254 version@stat F·[] S·0B[] Sc·[]
+15:16:47.373546 db@janitor F·2 G·0
+15:16:47.373987 db@open done T·16.273958ms
